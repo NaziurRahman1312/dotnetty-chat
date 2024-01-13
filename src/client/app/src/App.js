@@ -1,7 +1,9 @@
-export default function Game() {
+import MessageContainer from "./components/MessageContainer";
+
+export default function Chatscope() {
   return (
-    <div>
-      <p>Let's use Dotnetty Chat</p>
+    <div className="container">
+      <MessageContainer />
     </div>
   );
 }
