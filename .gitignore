@@ -173,3 +173,4 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
+src/client/app/src/config.js
