@@ -7,7 +7,6 @@ import config from "./config";
 export default function Chatscope() {
   const [connection, setConnection] = useState();
   const [messages, setMessages] = useState([]);
-  const [user, setUser] = useState();
 
   const joinRoom = async (user) => {
     try {
@@ -17,30 +16,32 @@ export default function Chatscope() {
         .build();
 
       connection.on("ReceiveMessage", (messageInfo) => {
-        setMessages((messages) => [...messages, messageInfo]);
-      });
-
-      connection.on("UserAdded", (userInfo) => {
-        setUser(userInfo);
+        let info = {
+          message: messageInfo.message,
+          sentTime: messageInfo.sentTime,
+          sender: messageInfo.name,
+          avatar: messageInfo.avatar,
+          direction: messageInfo.direction,
+        };
+        setMessages((messages) => [...messages, info]);
       });
 
       connection.onclose((e) => {
         setConnection();
         setMessages([]);
-        setUser();
       });
 
       await connection.start();
-      await connection.invoke("JoinRoom", { user });
+      await connection.invoke("JoinRoom", user);
       setConnection(connection);
     } catch (e) {
       console.log(e);
     }
   };
 
-  const sendMessage = async (message) => {
+  const sendMessage = async (innerHtml, textContent, innerText) => {
     try {
-      await connection.invoke("SendMessage", message);
+      await connection.invoke("SendMessage", innerText);
     } catch (e) {
       console.log(e);
     }
@@ -61,7 +62,6 @@ export default function Chatscope() {
       ) : (
         <ChatRoom
           messages={messages}
-          user={user}
           send={sendMessage}
           leave={closeConnection}
         />

@@ -29,6 +29,8 @@ function getMessageGroup(data) {
     ) {
       var group = {
         user: element.sender,
+        avatar: element.avatar,
+        direction: element.direction,
         replies: [
           {
             content: element.message,
@@ -51,14 +53,11 @@ function getMessageGroup(data) {
 export default function Chat({ data }) {
   var chatList = getMessageGroup(data).map((group, idx) => {
     return (
-      <MessageGroup key={idx} direction="incoming">
-        <Avatar src={getAvatarSrc(group.user)} name={group.user} />
+      <MessageGroup key={idx} direction={group.direction}>
+        <Avatar src={getAvatarSrc(group.avatar)} name={group.user} />
         <MessageGroup.Messages>
           {getReplyBody(group.user, group.replies)}
         </MessageGroup.Messages>
-        <MessageGroup.Footer>
-          {group.user + " " + group.replies[group.replies.length - 1].sentTime}
-        </MessageGroup.Footer>
       </MessageGroup>
     );
   });

@@ -8,7 +8,7 @@ import {
 import { Button, Container, Grid } from "@mui/material";
 import Chat from "./Chat";
 
-export default function ChatRoom({ messages, user, send, leave }) {
+export default function ChatRoom({ messages, send, leave }) {
   return (
     <Container maxWidth="lg">
       <Grid
@@ -27,11 +27,7 @@ export default function ChatRoom({ messages, user, send, leave }) {
           <div className="message-container">
             <MainContainer>
               <ChatContainer>
-                <MessageList
-                  typingIndicator={
-                    <TypingIndicator content="Emily is typing" />
-                  }
-                >
+                <MessageList>
                   <MessageList.Content>
                     <Chat data={messages} />
                   </MessageList.Content>
