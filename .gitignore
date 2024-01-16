@@ -173,4 +173,5 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
-src/client/app/src/config.js
+/src/client/app/src/config.js
+/src/server/SignalRChat/SignalRChat/appsettings.Development.json

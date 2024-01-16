@@ -9,6 +9,6 @@ export function getAvatarSrc(user) {
     case "Zoe":
       return "https://chatscope.io/storybook/react/static/media/zoe.e31a4ff8.svg";
     default:
-      return "https://chatscope.io/storybook/react/static/media/joe.641da105.svg";
+      return "https://www.svgrepo.com/show/217250/robot.svg";
   }
 }

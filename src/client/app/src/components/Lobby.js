@@ -26,7 +26,7 @@ export default function Lobby({ joinRoom }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission logic here
-    joinRoomCb(formData);
+    joinRoom(formData);
   };
 
   return (
