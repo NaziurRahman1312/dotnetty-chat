@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using SignalRChat.Data;
 using SignalRChat.Models;
 
 namespace SignalRChat.Hubs
@@ -6,49 +7,49 @@ namespace SignalRChat.Hubs
     public class ChatHub : Hub
     {
         #region Fields
-        private const string Room = "LetsChat";
-        private const string Bot_User = "Bot";
 
-        private readonly IDictionary<string, User> _connections;
+        private readonly ICosmosDbContext _cosmosDbContext;
 
         #endregion
 
         #region Ctors
-        public ChatHub(IDictionary<string, User> connections)
+        public ChatHub(ICosmosDbContext cosmosDbContext)
         {
-            _connections = connections;
+            _cosmosDbContext = cosmosDbContext;
         }
         #endregion
 
         #region Methods
-        public override Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
-            if (_connections.TryGetValue(Context.ConnectionId, out User user))
+            var user = await _cosmosDbContext.GetUserByConnectionId(Context.ConnectionId);
+            if (user != null)
             {
-                _connections.Remove(Context.ConnectionId);
-                Clients.Group(Room).SendAsync("ReceiveMessage", GenerateBotMessage($"{user.Name} has left"));
+                await _cosmosDbContext.DeleteUserByConnectionId(Context.ConnectionId);
+                await Clients.Group(MagicStrings.Room).SendAsync("ReceiveMessage", GenerateBotMessage($"{user.Name} has left"));
             }
 
-            return base.OnDisconnectedAsync(exception);
+            await base.OnDisconnectedAsync(exception);
         }
 
         public async Task JoinRoom(User user)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, Room);
+            await Groups.AddToGroupAsync(Context.ConnectionId, MagicStrings.Room);
 
-            _connections[Context.ConnectionId] = user;
+            await _cosmosDbContext.AddNewConnection(Context.ConnectionId, user);
 
-            await Clients.Group(Room).SendAsync("ReceiveMessage", GenerateBotMessage($"{user.Name} has joined {Room}"));
+            await Clients.Group(MagicStrings.Room).SendAsync("ReceiveMessage", GenerateBotMessage($"{user.Name} has joined {MagicStrings.Room}"));
         }
 
         public async Task SendMessage(string message)
         {
-            if (_connections.TryGetValue(Context.ConnectionId, out User user))
+            var user = await _cosmosDbContext.GetUserByConnectionId(Context.ConnectionId);
+            if (user != null)
             {
                 await Clients.Caller
                              .SendAsync("ReceiveMessage", GenerateUserMessage(user, message, Direction.Outgoing));
 
-                await Clients.GroupExcept(Room, Context.ConnectionId)
+                await Clients.GroupExcept(MagicStrings.Room, Context.ConnectionId)
                              .SendAsync("ReceiveMessage", GenerateUserMessage(user, message));
             }
         }
@@ -57,8 +58,8 @@ namespace SignalRChat.Hubs
         {
             return new MessageInfo
             {
-                Name = Bot_User,
-                Avatar = Bot_User,
+                Name = MagicStrings.Bot_User,
+                Avatar = MagicStrings.Bot_User,
                 Direction = Direction.Incoming.ToString().ToLower(),
                 Message = message,
                 SentTime = DateTime.UtcNow

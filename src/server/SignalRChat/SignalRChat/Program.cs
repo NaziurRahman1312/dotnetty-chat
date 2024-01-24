@@ -1,7 +1,10 @@
+using SignalRChat.Data;
 using SignalRChat.Hubs;
 using SignalRChat.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<ICosmosDbContext, CosmosDbContext>();
 
 // Add services to the container.;
 builder.Services.AddSignalR();
